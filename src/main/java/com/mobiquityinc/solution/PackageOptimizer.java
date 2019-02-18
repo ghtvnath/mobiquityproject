@@ -10,9 +10,9 @@ public class PackageOptimizer {
 
     protected static final String DEFAULT_NO_RES_STR = "-";
 
-    public static String determineItemIdsFittingToPackage(Package parcel) {
+    public static List<Item> determineItemIdsFittingToPackage(Package parcel) {
         if (parcel == null || parcel.getItemList() == null || parcel.getItemList().size() == 0) {
-            return DEFAULT_NO_RES_STR;
+            return null;
         }
         int maxWeight = parcel.getMaximumWeight();
         List<Item> itemsList = parcel.getItemList();
@@ -39,29 +39,25 @@ public class PackageOptimizer {
 
         System.out.println("optimalCostOfPackage-" + optimalCostOfPackage);
 
+        List<Item> selectedItemsList = new ArrayList<>();
+
         j = maxWeight;
-
-        StringBuilder sb = new StringBuilder();
-
         for (i = numberOfItems; i > 0 && optimalCostOfPackage > 0; i--) {
             // if the corresponding column in the row above has the same above, continue to check the row above
             if (optimalCostOfPackage == solutionMatrix[i - 1][j]) {
                 continue;
             } else {
                 // Item in the position has been involved in optimal weight solution
-                sb.append(itemsList.get(i - 1).getId()).append(",");
-                System.out.println(itemsList.get(i - 1).getId());
+                selectedItemsList.add(itemsList.get(i - 1));
+
+                // now check what are the items that can fit into package when
+                // the weight = weight - (weight_of_the_selected_item)
                 optimalCostOfPackage = optimalCostOfPackage - itemsList.get(i - 1).getCost();
                 j = j - (int) Math.floor(itemsList.get(i - 1).getWeight());
             }
         }
-        if (sb.length() > 0) {
-            sb.deleteCharAt(sb.length() - 1);
-        } else {
-            sb = new StringBuilder(DEFAULT_NO_RES_STR);
-        }
 
-        return sb.toString();
+        return selectedItemsList;
 
     }
 }

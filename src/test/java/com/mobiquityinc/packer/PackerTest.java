@@ -7,10 +7,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
 
 public class PackerTest {
-
 
     @Test
     public void testConvertFileItemsToPackages() throws APIException {
@@ -56,6 +56,13 @@ public class PackerTest {
     }
 
     @Test
+    public void testParseInvalidWeight() {
+        Package parcel = Packer.parseLine("102 : (1,85.31,€29) (2,14.55,€74) (3,7.55,€74) (4,33.50,€102)");
+
+        Assert.assertNull(parcel);
+    }
+
+    @Test
     public void testParseStringToItem() {
         Item item = Packer.parseStringToItem("2,14.55,€74");
         Assert.assertEquals(2, item.getId());
@@ -75,5 +82,15 @@ public class PackerTest {
     public void testParseStringToItemInvalid() {
         Item item = Packer.parseStringToItem("2,14.55,");
         Assert.assertNull(item);
+    }
+
+    @Test
+    public void testParseStringToItemInvalidNumberOfItems() {
+        Package parcel = Packer.parseLine("75 : (1,85.31,€29) (2,14.55,€74) (3,7.55,€74) (4,33.50,€102) " +
+                "(1,85.31,€29) (2,14.55,€74) (3,7.55,€74) (4,33.50,€102) " +
+                "(1,85.31,€29) (2,14.55,€74) (3,7.55,€74) (4,33.50,€102) " +
+                "(1,85.31,€29) (2,14.55,€74) (3,7.55,€74) (4,33.50,€102) ");
+
+        Assert.assertNull(parcel);
     }
 }

@@ -1,8 +1,5 @@
 package com.mobiquityinc.pojo;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-
 /**
  * Item class represents an item in the Parcel
  */

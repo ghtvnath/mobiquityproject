@@ -4,6 +4,7 @@ import com.mobiquityinc.solution.PackageOptimizer;
 import com.mobiquityinc.exception.APIException;
 import com.mobiquityinc.pojo.Item;
 import com.mobiquityinc.pojo.Package;
+import com.mobiquityinc.util.PrintHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -31,8 +32,9 @@ import java.util.stream.Stream;
  */
 public class Packer {
 
-    private static final double MAX_WEIGHT = 100.00;
-    private static final double MAX_COST_VALUE = 100.00;
+    protected static final double MAX_WEIGHT = 100.00;
+    protected static final double MAX_COST_VALUE = 100.00;
+    protected static final int MAX_NO_ITEMS = 15;
 
     /**
      * @param filePath
@@ -47,7 +49,8 @@ public class Packer {
             StringBuilder sb = new StringBuilder();
 
             for (Package parcel : listOfPackages) {
-                sb.append(PackageOptimizer.determineItemIdsFittingToPackage(parcel));
+                List<Item> selectedItems = PackageOptimizer.determineItemIdsFittingToPackage(parcel);
+                sb.append(PrintHelper.getListOfSelectedItemIdsAsPritableString(selectedItems));
                 sb.append(System.lineSeparator());
             }
 
@@ -104,13 +107,21 @@ public class Packer {
             int packageMaxWeight = Integer.valueOf(strArr[0].trim());
             System.out.println("Package maximum weight limit :" + packageMaxWeight);
             Package aPackage = new Package(packageMaxWeight);
-            if (packageMaxWeight > MAX_WEIGHT) {
-                System.err.println("Invalid package weight defined in input line");
-                return aPackage;
-            }
+
             String[] itemsTexts = strArr[1].trim()              // remove leading and trailing spaces, if any
                     .substring(1, strArr[1].length() - 2)       // get the string without first ( symbol and last ) symbol.
                     .split("\\)\\s+\\(");                // split the text by ") ("
+
+            if (packageMaxWeight > MAX_WEIGHT) {
+                System.err.println("Invalid package weight defined in input line");
+                return null;
+            }
+
+            if (itemsTexts.length > MAX_NO_ITEMS) {
+                System.err.println("Cannot consider more than 15 items for a package");
+                return  null;
+            }
+
 
             /* filter out the items that meet the requirements :
                 Item's weight should be equal or less than to the maximum weight allowed in the package...
